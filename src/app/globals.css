@@ -1,0 +1,111 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --page-bg: #f7f8fc;
+    --ink: #111827;
+    --brand: #2563eb;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    min-width: 320px;
+    background:
+      radial-gradient(circle at 5% 0%, rgba(37, 99, 235, 0.08), transparent 26rem),
+      radial-gradient(circle at 95% 12%, rgba(99, 102, 241, 0.06), transparent 24rem),
+      var(--page-bg);
+    color: var(--ink);
+  }
+
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  :focus-visible {
+    outline: 3px solid rgba(37, 99, 235, 0.3);
+    outline-offset: 3px;
+  }
+
+  /* Native top-layer modal dialog backdrop styling */
+  dialog::backdrop {
+    background-color: rgba(11, 15, 25, 0.62);
+    backdrop-filter: blur(6px);
+  }
+}
+
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-float-slow {
+  animation: floatSlow 5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Hide scrollbar for horizontal category pills while preserving touch scroll */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Point of Sale (POS) Thermal Receipt Printing & Shift Reports */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #printable-receipt,
+  #printable-receipt *,
+  #printable-shift-report,
+  #printable-shift-report * {
+    visibility: visible;
+  }
+  #printable-receipt,
+  #printable-shift-report {
+    position: absolute;
+    left: 0;
+    top: 0;
+    margin: 0 auto;
+    padding: 8px;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .receipt-width-80mm {
+    width: 80mm !important;
+    max-width: 80mm !important;
+  }
+  .receipt-width-58mm {
+    width: 58mm !important;
+    max-width: 58mm !important;
+    font-size: 10px !important;
+  }
+}
+
+
