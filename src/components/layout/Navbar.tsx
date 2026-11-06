@@ -1,5 +1,7 @@
 "use client";
 
+import { STOREFRONT_URL } from "@/lib/config";
+
 import { useState, useEffect, useRef } from "react";
 import {
   Bell,
@@ -144,7 +146,7 @@ export default function Navbar({
       {/* Right side */}
       <div className="flex items-center gap-2">
         <a
-          href={process.env.NEXT_PUBLIC_STOREFRONT_URL || "http://localhost:3000"}
+          href={STOREFRONT_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-950 text-white hover:bg-blue-600 text-xs font-bold transition"

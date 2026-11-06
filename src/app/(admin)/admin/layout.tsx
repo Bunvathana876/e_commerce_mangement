@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import { getCurrentUser, isLoggedIn } from "@/lib/auth";
+import { validateManagementSession } from "@/lib/management-session";
 
 export default function AdminLayout({
   children,
@@ -14,35 +14,31 @@ export default function AdminLayout({
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const checkAuth = () => {
-      if (!isLoggedIn()) {
-        setReady(false);
-        const currentPath =
-          typeof window !== "undefined"
-            ? window.location.pathname
-            : "/admin/dashboard";
-        router.replace(`/login?redirect=${encodeURIComponent(currentPath)}`);
-        return;
-      }
-
-      const user = getCurrentUser();
-      const role = (user?.role || "").toLowerCase().trim();
-
-      if (role === "admin") {
+    let cancelled = false;
+    let validation = 0;
+    const checkAuth = async () => {
+      const currentValidation = ++validation;
+      setReady(false);
+      const user = await validateManagementSession();
+      if (cancelled || currentValidation !== validation) return;
+      if (!user) {
+        router.replace(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
+      } else if (user.role === "admin") {
         setReady(true);
-      } else if (role === "seller") {
-        setReady(false);
+      } else if (user.role === "seller") {
         router.replace("/seller");
-      } else {
-        setReady(false);
-        router.replace("/login?error=access_denied");
       }
     };
 
-    checkAuth();
-
-    window.addEventListener("auth-changed", checkAuth);
-    return () => window.removeEventListener("auth-changed", checkAuth);
+    const revalidate = () => { void checkAuth(); };
+    revalidate();
+    window.addEventListener("auth-changed", revalidate);
+    window.addEventListener("storage", revalidate);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("auth-changed", revalidate);
+      window.removeEventListener("storage", revalidate);
+    };
   }, [router]);
 
   if (!ready) {

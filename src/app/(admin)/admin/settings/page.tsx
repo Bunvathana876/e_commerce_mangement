@@ -1,5 +1,7 @@
 "use client";
 
+import { API_BASE_URL, API_DOCS_URL } from "@/lib/config";
+
 import { useState } from "react";
 import {
   Save,
@@ -559,14 +561,15 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-gray-500 uppercase">PostgreSQL Database</span>
                   <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Connected
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Backend managed
                   </span>
                 </div>
-                <p className="text-sm font-semibold text-gray-900">ecommerce-postgres</p>
-                <p className="text-xs font-mono text-gray-500">Port: 5433 (host) / 5432 (container)</p>
-                <p className="text-xs text-gray-400">Database: <code className="text-gray-700">ecommerce</code></p>
+                <p className="text-sm font-semibold text-gray-900">PostgreSQL</p>
+                <p className="text-xs font-mono text-gray-500">Accessed through the FastAPI backend only</p>
+                <p className="text-xs text-gray-400">Database configuration is managed on Render.</p>
               </div>
 
+              {process.env.NODE_ENV !== "production" && (
               <div className="p-4 rounded-xl border border-gray-100 bg-gray-50/50 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-gray-500 uppercase">pgAdmin 4 GUI Tool</span>
@@ -584,11 +587,13 @@ export default function SettingsPage() {
                 <p className="text-xs text-gray-400">URL: <code className="text-gray-700">http://localhost:5050</code></p>
               </div>
 
+              )}
+
               <div className="p-4 rounded-xl border border-gray-100 bg-gray-50/50 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-gray-500 uppercase">FastAPI Backend API</span>
                   <a
-                    href="http://localhost:8000/docs"
+                    href={API_DOCS_URL}
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex items-center gap-1 text-xs font-semibold text-[#7699F0] hover:underline"
@@ -597,8 +602,8 @@ export default function SettingsPage() {
                   </a>
                 </div>
                 <p className="text-sm font-semibold text-gray-900">ecommerce-backend</p>
-                <p className="text-xs font-mono text-gray-500">Port: 8000</p>
-                <p className="text-xs text-gray-400">Base: <code className="text-gray-700">http://localhost:8000/api</code></p>
+                <p className="text-xs font-mono text-gray-500">HTTPS API endpoint</p>
+                <p className="text-xs text-gray-400">Base: <code className="text-gray-700 break-all">{API_BASE_URL}</code></p>
               </div>
 
               <div className="p-4 rounded-xl border border-gray-100 bg-gray-50/50 space-y-2">

@@ -1,5 +1,7 @@
 "use client";
 
+import { STOREFRONT_URL } from "@/lib/config";
+
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import {
@@ -530,7 +532,7 @@ export default function SellerProductsPage() {
                           {/* Storefront View Shortcut */}
                           {product.is_active ? (
                             <a
-                              href={`${process.env.NEXT_PUBLIC_STOREFRONT_URL || "http://localhost:3000"}/product/${product.id}`}
+                              href={`${STOREFRONT_URL}/product/${product.id}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition"

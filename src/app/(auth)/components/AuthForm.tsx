@@ -8,12 +8,13 @@ import { FaLock } from "react-icons/fa";
 import { ArrowLeft } from "lucide-react";
 import { authApi } from "@/lib/api";
 import {
-  isLoggedIn,
   saveAuthSession,
-  getCurrentUser,
   getSafeRoleDestination,
   logout,
 } from "@/lib/auth";
+
+import { STOREFRONT_URL } from "@/lib/config";
+import { validateManagementSession } from "@/lib/management-session";
 
 type Mode = "login" | "register";
 
@@ -36,10 +37,11 @@ function AuthFormInner({ mode }: AuthFormProps) {
   }, [mode]);
 
   useEffect(() => {
-    if (isLoggedIn()) {
-      const current = getCurrentUser();
-      router.replace(getSafeRoleDestination(current?.role, redirectParam));
-    }
+    let cancelled = false;
+    void validateManagementSession().then((user) => {
+      if (!cancelled && user) router.replace(getSafeRoleDestination(user.role, redirectParam));
+    });
+    return () => { cancelled = true; };
   }, [router, redirectParam]);
 
   // Form state
@@ -47,12 +49,6 @@ function AuthFormInner({ mode }: AuthFormProps) {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
-  const fillDemoAccount = (demoEmail: string, demoPass: string) => {
-    setEmail(demoEmail);
-    setPassword(demoPass);
-    setErrorMessage(null);
-  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -63,9 +59,9 @@ function AuthFormInner({ mode }: AuthFormProps) {
       if (isLogin) {
         const res = await authApi.login({ email, password });
         const userRole = (res.data?.user?.role || "").toLowerCase().trim();
-        if (userRole === "customer") {
+        if (!["admin", "seller"].includes(userRole) || !res.data.user.is_active) {
           setErrorMessage(
-            "Access denied: Customer accounts cannot access the management portal. Please sign in to the customer storefront at http://localhost:3000."
+            `Access denied: Sign in with an active administrator or seller account. Customer storefront: ${STOREFRONT_URL}.`
           );
           logout();
           setLoading(false);
@@ -116,7 +112,7 @@ function AuthFormInner({ mode }: AuthFormProps) {
     <div className="w-full max-w-4xl space-y-4">
       <div className="flex items-center justify-between px-1">
         <a
-          href={process.env.NEXT_PUBLIC_STOREFRONT_URL || "http://localhost:3000"}
+          href={STOREFRONT_URL}
           className="inline-flex items-center gap-1.5 text-xs font-extrabold text-slate-600 hover:text-blue-600 transition"
         >
           <ArrowLeft size={14} />
@@ -305,42 +301,6 @@ function AuthFormInner({ mode }: AuthFormProps) {
                 "Sign In"
               )}
             </button>
-
-            {/* Quick Demo Fill Pills */}
-            <div className="pt-3 border-t border-slate-100">
-              <p className="text-[11px] font-bold text-slate-400 text-center mb-2">
-                Quick Demo Accounts
-              </p>
-              <div className="grid grid-cols-3 gap-1.5">
-                <button
-                  type="button"
-                  onClick={() =>
-                    fillDemoAccount("customer@ecommerce.com", "password123")
-                  }
-                  className="py-1.5 px-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-[11px] font-extrabold transition cursor-pointer"
-                >
-                  Customer
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    fillDemoAccount("seller@ecommerce.com", "seller123")
-                  }
-                  className="py-1.5 px-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-extrabold transition cursor-pointer"
-                >
-                  Seller
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    fillDemoAccount("admin@ecommerce.com", "admin123")
-                  }
-                  className="py-1.5 px-2 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[11px] font-extrabold transition cursor-pointer"
-                >
-                  Admin
-                </button>
-              </div>
-            </div>
 
             <p className="mt-4 text-center text-sm text-gray-600 md:hidden">
               Don&apos;t have an account?{" "}

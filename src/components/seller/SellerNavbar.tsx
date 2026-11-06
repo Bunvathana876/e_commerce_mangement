@@ -1,5 +1,7 @@
 "use client";
 
+import { STOREFRONT_URL } from "@/lib/config";
+
 import { useEffect, useState } from "react";
 import {
   Menu,
@@ -65,7 +67,7 @@ export default function SellerNavbar({
       <div className="flex items-center gap-3">
         {/* Storefront Link */}
         <a
-          href={process.env.NEXT_PUBLIC_STOREFRONT_URL || "http://localhost:3000"}
+          href={STOREFRONT_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition"

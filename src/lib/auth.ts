@@ -1,14 +1,18 @@
 import type { ApiUser } from "./api";
+import { STOREFRONT_URL } from "./config";
 
 export const AUTH_KEY = "mgmt_isLoggedIn";
 export const TOKEN_KEY = "mgmt_accessToken";
 export const USER_KEY = "mgmt_currentUser";
 
 const ALLOWED_CROSS_APP_ORIGINS = [
-  "http://localhost:3000",
-  "http://localhost:3001",
-  "http://127.0.0.1:3000",
-  "http://127.0.0.1:3001",
+  new URL(STOREFRONT_URL).origin,
+  ...(process.env.NODE_ENV !== "production" ? [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:3001",
+  ] : []),
 ];
 
 export function isAllowlistedOrigin(urlStr: string): boolean {
@@ -70,7 +74,7 @@ export function isTokenExpired(token: string | null): boolean {
         .join("")
     );
     const decoded = JSON.parse(jsonPayload);
-    if (!decoded.exp) return false;
+    if (typeof decoded.exp !== "number" || !Number.isFinite(decoded.exp)) return true;
     // Buffer by 10 seconds to avoid race condition near expiration
     return Date.now() >= decoded.exp * 1000 - 10000;
   } catch {
@@ -225,7 +229,7 @@ export function getSafeRoleDestination(
   if (trimmed.includes("://")) {
     try {
       const parsed = new URL(trimmed);
-      if (ALLOWED_CROSS_APP_ORIGINS.includes(parsed.origin)) {
+      if (isAllowlistedOrigin(trimmed) && !parsed.username && !parsed.password) {
         return trimmed;
       }
     } catch {
@@ -234,12 +238,25 @@ export function getSafeRoleDestination(
     return roleHome;
   }
 
+  // Require an internal absolute path; encoded slashes and backslashes must not
+  // turn a relative redirect into an external URL after browser normalization.
+  let decodedPath: string;
+  try {
+    decodedPath = decodeURIComponent(trimmed);
+  } catch {
+    return roleHome;
+  }
+  if (!trimmed.startsWith("/") || decodedPath.startsWith("//") || decodedPath.includes("\\")) {
+    return roleHome;
+  }
+  const normalizedPath = new URL(trimmed, "https://management.invalid").pathname;
+
   // Validate internal path access against role
-  if (trimmed.startsWith("/admin")) {
+  if (normalizedPath.startsWith("/admin")) {
     return normalizedRole === "admin" ? trimmed : roleHome;
   }
 
-  if (trimmed.startsWith("/seller")) {
+  if (normalizedPath.startsWith("/seller")) {
     return normalizedRole === "seller" ? trimmed : roleHome;
   }
 

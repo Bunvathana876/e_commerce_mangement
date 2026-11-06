@@ -312,7 +312,7 @@ export default function CreateProductPage() {
               name="image_url"
               value={form.image_url}
               onChange={handleChange}
-              placeholder="https://images.unsplash.com/... or http://localhost:8000/uploads/..."
+              placeholder="https://images.unsplash.com/... or your backend upload URL"
               className="w-full px-4 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7699F0] transition"
             />
           </div>

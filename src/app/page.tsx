@@ -2,25 +2,18 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getCurrentUser, isLoggedIn } from "@/lib/auth";
+import { validateManagementSession } from "@/lib/management-session";
 
 export default function ManagementRootPage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoggedIn()) {
-      router.replace("/login");
-      return;
-    }
-    const user = getCurrentUser();
-    const role = (user?.role || "").toLowerCase().trim();
-    if (role === "admin") {
-      router.replace("/admin/dashboard");
-    } else if (role === "seller") {
-      router.replace("/seller");
-    } else {
-      router.replace("/login");
-    }
+    let cancelled = false;
+    void validateManagementSession().then((user) => {
+      if (cancelled) return;
+      router.replace(user?.role === "admin" ? "/admin/dashboard" : user?.role === "seller" ? "/seller" : "/login");
+    });
+    return () => { cancelled = true; };
   }, [router]);
 
   return (

@@ -1,7 +1,7 @@
-import { getAccessToken, logout } from "./auth";
+import { getAccessToken, getSessionEpoch, logout } from "./auth";
+import { API_BASE_URL } from "./config";
 
-export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+export { API_BASE_URL };
 
 export interface ApiResponse<T = any> {
   success: boolean;
@@ -178,8 +178,9 @@ async function request<T>(
     ...(options.headers as Record<string, string>),
   };
 
+  const token = getAccessToken();
+  const sessionEpoch = getSessionEpoch();
   if (typeof window !== "undefined") {
-    const token = getAccessToken();
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -188,12 +189,14 @@ async function request<T>(
   const response = await fetch(url, {
     ...options,
     headers,
+    cache: "no-store",
   });
 
   const json = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    if (response.status === 401 && typeof window !== "undefined") {
+    if (response.status === 401 && typeof window !== "undefined" &&
+        sessionEpoch === getSessionEpoch() && token === getAccessToken()) {
       logout();
       if (
         window.location.pathname.startsWith("/admin") ||
@@ -828,8 +831,9 @@ export const uploadApi = {
     const url = `${API_BASE_URL}/upload/image`;
     const headers: Record<string, string> = {};
 
+    const token = getAccessToken();
+    const sessionEpoch = getSessionEpoch();
     if (typeof window !== "undefined") {
-      const token = getAccessToken();
       if (token) {
         headers["Authorization"] = `Bearer ${token}`;
       }
@@ -844,7 +848,8 @@ export const uploadApi = {
     const json = await response.json().catch(() => ({}));
 
     if (!response.ok) {
-      if (response.status === 401 && typeof window !== "undefined") {
+      if (response.status === 401 && typeof window !== "undefined" &&
+          sessionEpoch === getSessionEpoch() && token === getAccessToken()) {
         logout();
       }
       const errorMessage =

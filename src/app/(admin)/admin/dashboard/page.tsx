@@ -1,5 +1,7 @@
 "use client";
 
+import { API_DOCS_URL } from "@/lib/config";
+
 import Link from "next/link";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import {
@@ -709,12 +711,12 @@ export default function AdminDashboardPage() {
             <div className="space-y-2 text-xs">
               <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-100">
                 <span className="text-slate-500">Database Engine</span>
-                <span className="font-semibold text-emerald-600">PostgreSQL 16 (:5433)</span>
+                <span className="font-semibold text-emerald-600">PostgreSQL via Backend</span>
               </div>
               <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-100">
                 <span className="text-slate-500">Backend API</span>
                 <a
-                  href="http://localhost:8000/docs"
+                  href={API_DOCS_URL}
                   target="_blank"
                   rel="noreferrer"
                   className="font-mono font-semibold text-[#2563EB] hover:underline flex items-center gap-1"
@@ -722,6 +724,7 @@ export default function AdminDashboardPage() {
                   Swagger Docs ↗
                 </a>
               </div>
+              {process.env.NODE_ENV !== "production" && (
               <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-100">
                 <span className="text-slate-500">pgAdmin 4 GUI</span>
                 <a
@@ -733,6 +736,7 @@ export default function AdminDashboardPage() {
                   :5050 Web GUI ↗
                 </a>
               </div>
+              )}
             </div>
           </div>
         </div>

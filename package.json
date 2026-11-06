@@ -7,13 +7,16 @@
     "build": "next build --webpack",
     "start": "next start -H 0.0.0.0 -p 3001",
     "lint": "eslint",
-    "test": "node --experimental-strip-types --test 'src/lib/__tests__/*.test.mjs'"
+    "test": "node --experimental-strip-types --import ./src/lib/__tests__/ts-resolver.mjs --test 'src/lib/__tests__/*.test.mjs'"
+  },
+  "engines": {
+    "node": "24.x"
   },
   "dependencies": {
     "@svgr/webpack": "^8.1.0",
     "clsx": "^2.1.1",
     "lucide-react": "^1.43.0",
-    "next": "16.3.4",
+    "next": "16.4.5",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-icons": "^5.7.0",
@@ -26,7 +29,7 @@
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
-    "eslint-config-next": "16.3.4",
+    "eslint-config-next": "16.4.5",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
